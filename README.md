@@ -4,32 +4,32 @@ Este repositorio contiene la arquitectura de procesamiento de datos, análisis e
 
 El enfoque central de este trabajo es la consolidación de múltiples fuentes de datos socioeconómicos para visibilizar el "Filtro Invisible": la brecha sistémica que impide que las mujeres transiten desde la educación superior hasta los puestos de liderazgo, y la simulación matemática del costo de oportunidad que esto representa.
 
-##  Fuentes de Datos (Datasets)
+## Diccionario y Fuentes de Datos
 
-El proyecto integra datos de diversas fuentes institucionales, estructurados en las siguientes categorías:
+Para garantizar la reproducibilidad y transparencia del análisis, todos los conjuntos de datos utilizados provienen de fuentes oficiales e instituciones internacionales reconocidas. A continuación, se detalla el origen y propósito de cada dataset procesado en nuestro pipeline ETL:
 
-* **Datos de Población y Economía:**
-  * `Poblacion.csv`: Demografía histórica por país y sexo.
-  * `dataPBI.csv`: Tasas de crecimiento económico anual y PIB.
-  * `Salarios.csv`: Retorno educativo y relación salarial.
-* **Datos de Brecha y Trabajo:**
-  * `tiempo_trabajoRemunerado.csv`: Distribución de carga laboral (remunerada y no remunerada).
-  * `PuestosDirectivos.csv`: Porcentaje histórico de participación femenina en posiciones de liderazgo.
-  * `data_Proporcion de lugares ocupador por mujeres_FUENTE_CEPAL.csv`: Mujeres Egresadas en carreras STEM.
-  
+| Archivo / Dataset | Descripción del Contenido | Fuente Oficial | Enlace de Consulta |
+| :--- | :--- | :--- | :--- |
+| **`Matriculación y Egreso STEM`** | Datos históricos (2015-2025) del porcentaje de mujeres matriculadas y graduadas en educación terciaria para LatAm y el Caribe. | Instituto de Estadística de la UNESCO (UIS) | [UNESCO Data Browser](https://databrowser.uis.unesco.org/view#ndicatorPaths=UIS-EducationOPRI%3A0%3AFGP.5T8.F500600700&geoMode=countries&geoUnits=ARG%2CABW%2CBRB%2CBLZ%2CBRA%2CVGB%2CCYM%2CCHL%2CCOL%2CCRI%2CCUB%2CDOM%2CECU%2CSLV%2CGRD%2CGTM%2CGUY%2CHND%2CMEX%2CNIC%2CPAN%2CPER%2CPRI%2CLCA%2CSXM%2CTTO%2CTCA%2CURY%2CVEN&browsePath=EDUCATION%2FUIS-EducationOPRI%2Fgraduates&timeMode=range&view=table&chartMode=multiple&tableIndicatorId=FGP.5T8.F500600700) |
+| **`tiempo_trabajoRemunerado.csv`** | Distribución de horas dedicadas al trabajo no remunerado (cuidados y hogar) vs. trabajo remunerado, desglosado por sexo y país. | CEPAL / ONU Mujeres | CEPALSTAT / ONU Mujeres Data |
+| **`PuestosDirectivos.csv`** | Evolución histórica del porcentaje de participación femenina en posiciones de liderazgo y gerencia media/alta corporativa. | OIT (Organización Internacional del Trabajo) | OITSTAT (ILOSTAT) |
+| **`Poblacion.csv`** | Demografía general histórica proyectada, escalada en millones de habitantes, segmentada por país y género. | Banco Mundial | World Bank Open Data |
+| **`dataPBI.csv`** | Tasas de crecimiento económico anual y Producto Interno Bruto histórico para los países analizados. | Banco Mundial | World Bank Open Data |
+| **`Salarios.csv`** | Relación de la brecha salarial y el cálculo de eficiencia o retorno educativo (Salario vs. Años de estudio). | OIT / Foro Económico Mundial | Global Gender Gap Report / ILOSTAT |
 
-##  Pipeline de Procesamiento (ETL)
+> **Nota sobre el procesamiento:** Los datos crudos extraídos de estas fuentes fueron sometidos a un proceso de estandarización (renombramiento de columnas, eliminación de espacios, manejo de nulos) mediante Python/Pandas para consolidarlos en el `df_master` utilizado por nuestro modelo predictivo.
+
+## Pipeline de Procesamiento (ETL)
 
 Para unificar los datos en un `DataFrame` maestro (`df_master`), se implementó un pipeline de limpieza y estandarización robusto:
 
-1. **Estandarización de Variables Llave:** * Normalización de los nombres de columnas de tiempo (`Anio`, `year`, `time` unificados a `Anios`) y segmentación demográfica (`sex.item` unificado a `Sexo`).
-2. **Limpieza de Cadenas (Strings):** * Remoción de espacios en blanco ocultos en las variables categóricas (ej. nombres de los países) para garantizar la integridad de los *Joins*.
-3. **Conversión de Unidades:** * Escalamiento de la métrica de población (multiplicación por 1,000) para reflejar cifras reales.
-4. **Fusión de Datos (Data Merging):** * Integración de datasets mediante cruces relacionales (`pd.merge`) utilizando `Pais`, `Anios` y `Sexo` como llaves primarias.
-5. **Manejo de Valores Nulos (Imputación):** * Aplicación de técnicas `ffill()` y `bfill()` en el dataset maestro para mantener la continuidad de las series de tiempo.
-   * Uso de limpiezas estrictas (`dropna`) exclusivas para los conjuntos de entrenamiento (Train sets) para evitar introducir ruido en los algoritmos predictivos.
+1. **Estandarización de Variables Llave:** Normalización de los nombres de columnas de tiempo (`Anio`, `year`, `time` unificados a `Anios`) y segmentación demográfica (`sex.item` unificado a `Sexo`).
+2. **Limpieza de Cadenas (Strings):** Remoción de espacios en blanco ocultos en las variables categóricas (ej. nombres de los países) para garantizar la integridad de los *Joins*.
+3. **Conversión de Unidades:** Escalamiento de la métrica de población (multiplicación por 1,000) para reflejar cifras reales.
+4. **Fusión de Datos (Data Merging):** Integración de datasets mediante cruces relacionales (`pd.merge`) utilizando `Pais`, `Anios` y `Sexo` como llaves primarias.
+5. **Manejo de Valores Nulos (Imputación):** Aplicación de técnicas `ffill()` y `bfill()` en el dataset maestro para mantener la continuidad de las series de tiempo. Uso de limpiezas estrictas (`dropna`) exclusivas para los conjuntos de entrenamiento para evitar introducir ruido en los algoritmos predictivos.
 
-##  Modelado Predictivo (Machine Learning)
+## Modelado Predictivo 
 
 En lugar de utilizar proyecciones de tiempo univariadas, se implementó un modelo multivariable para medir el impacto real de la equidad de género en la economía.
 
@@ -41,7 +41,7 @@ En lugar de utilizar proyecciones de tiempo univariadas, se implementó un model
   2. **Progreso Lento:** Simulador con un incremento marginal (5%) en equidad directiva.
   3. **Meta ODS 2030:** Simulador que proyecta el alcance de la paridad directiva (50%) acoplado a un factor acelerador de crecimiento económico.
 
-## Archivos de Salida (Data Exports)
+##  Archivos de Salida 
 
 El pipeline de Python está diseñado para procesar la información y generar archivos estáticos optimizados (`.json`) para ser consumidos por el Frontend (React/Next.js). Los principales *outputs* generados son:
 
