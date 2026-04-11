@@ -50,7 +50,7 @@ El pipeline de Python está diseñado para procesar la información y generar ar
 * `simulacion_ods_pib.json`: Series de tiempo resultantes del simulador de los 3 escenarios económicos hacia el año 2030.
 * `mapa_matriculacion.json`: Consolidado geográfico para el despliegue del mapa de calor de retención de talento.
 
-## 🛠️ Stack Tecnológico de Datos
+## Stack Tecnológico de Datos
 
 * **Lenguaje:** Python 3.12+
 * **Manipulación y Análisis:** Pandas, NumPy
