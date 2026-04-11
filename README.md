@@ -56,3 +56,12 @@ El pipeline de Python está diseñado para procesar la información y generar ar
 * **Manipulación y Análisis:** Pandas, NumPy
 * **Machine Learning:** Scikit-Learn (`Ridge`, `LinearRegression`)
 * **Visualización de Validación:** Plotly (`plotly.express`, `plotly.graph_objects`)
+
+##  Equipo de Desarrollo
+
+Este proyecto fue desarrollado y estructurado por:
+
+* Gudelia Pilar Pérez Conde
+* Gerardo Saucedo Pérez
+* Jorge Eduardo Berber Carretero
+* Luis Fernando Romero Coyotecatl
